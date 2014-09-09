@@ -19,8 +19,7 @@ defaults = {
     'about_blurb': 'Check out my cool new blog!',
     'page_size': 5,
     'session_expire': 1800,
-    'session_prune_age': 3600,
-    'secret_key': 'PLEASE CHANGE ME SOON'
+    'session_prune_age': 3600
 }
 
 
