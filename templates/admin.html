@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="/css/admin.css">
+{% endblock %}
+
+{% block sidebar %}
+    <div class="sidebar">
+        <div class="admin_sidebar_top">
+            <h3>Administration Tasks</h3>
+            <div>
+                <a href="/admin">admin home</a>
+            </div>
+            <div>
+                <a href="/admin/links">sidebar links</a>
+            </div>
+            <div>
+                <a href="/admin/config">configuration</a>
+            </div>
+            <div>
+                <a href="/logout">logout</a>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+{% endblock %}

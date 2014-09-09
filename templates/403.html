@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% set nowrap = True %}
+
+{% block name %}Employees Only!{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        <h2>Hey, what are you doing back here?</h2>
+        <p>
+            You don't look like you work here. Perhaps you should head back
+            <a href="/">home</a> and I won't tell the boss.
+        </p>
+    </div>
+{% endblock %}

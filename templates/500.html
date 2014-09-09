@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% set no_wrap = True %}
+
+{% block name %}Whoops!{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        <h2>I screwed up!</h2>
+        <p>
+            I should be more careful next time. For now, You should probably
+            return <a href="/">home</a>. Sorry for the inconvenience!
+        </p>
+    </div>
+{% endblock %}

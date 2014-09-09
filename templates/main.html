@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block name %}Home{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        {% if articles %}
+            {% for article in articles %}
+            <div class="article_header">
+                <h2>
+                    {% if article.title_alt %}
+                    <span title="{{ article.title_alt }}">
+                    {% else %}
+                    <span>
+                    {% endif %}
+                        {% if article.title_link %}
+                        <a href="{{ article.title_link }}">{{ article.title }}</a>
+                        {% else %}
+                        {{ article.title }}
+                        {% endif %}
+                    </span>
+                    <div class="article_date">
+                        <a href="/post/{{ sel(article.title_path, article.id) }}">
+                            {{ article.date }}
+                        </a>
+                    </div>
+                </h2>
+            </div>
+            <div class="clear"></div>
+            {{ article.body|safe }}
+            {% if show_tags %}
+                <div class="clear"></div>
+                <div>tags:
+                    {% if article.tag_list %}
+                        {% for tag in article.tag_list %}
+                        <a href="/tag/{{ tag }}">{{ tag }}{% if not loop.last %}, {% endif %}</a>
+                        {% endfor %}
+                    {% else %}
+                        <em>None</em>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% endfor %}
+        {% else %}
+        <p>Nothing to see here!</p>
+        {% endif %}
+        {% if pages and pages > 1 and articles %}
+        <div class="clear"></div>
+        <div class="pages">
+                <span class="label">Jump to Page:</span>
+            {% for page in range(1, pages + 1) %}
+                <a href="/page/{{ page }}">{{ page }}</a>
+                {% if page < (pages - 1) %}, {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

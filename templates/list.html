@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block name %}Articles{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        <div class="thoughts_body">
+            {% if articles %}
+                <h2>All Articles</h2>
+                <p>Click on an article title to jump to that article.</p>
+                <ul>
+                {% for article in articles %}
+                    <li>
+                        <a href="/post/{{ sel(article.title_path, article.id) }}">
+                            {{ sel(article.title, 'Untitled') }}
+                        </a>
+                        written on
+                        <span>{{ article.date }}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+            <p>Nothing to see here!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

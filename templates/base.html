@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block name %}Home{% endblock %} - {% block sitename %}{{ browser_title }}{% endblock %}</title>
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/pygments.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    {% if not no_wrap %}
+    <div class="maincontent">
+    {% endif %}
+    {% block header %}
+    <div class="header">
+        <div>
+            <span class="title">
+                {% block title %}
+                {{ header_title }}
+                {% endblock %}
+            </span>
+            <span class="subtitle">
+                {% block subtitle %}
+                {{ header_subtitle }}
+                {% endblock %}
+            </span>
+        </div>
+    </div>
+    {% endblock %}
+    {% block body %}
+
+    {% endblock %}
+    {% if not no_wrap %}
+    </div>
+    {% endif %}
+
+    {% block sidebar %}
+    <div class="sidebar">
+        <div class="sidebar_about">
+            <div class="sidebar_image">
+                <a href="/">
+                    <img src="{{ sidebar_image }}" alt="{{ sidebar_image_alt }}" />
+                </a>
+            </div>
+            <div class="clear"></div>
+            <div class="sidebar_about">
+                {{ sidebar_blurb }}
+            </div>
+        </div>
+        <div class="clear"></div>
+
+        <h3>Links</h3>
+        <div class="sidebar_link">
+            {% if sidebar_links %}
+                {% for link in sidebar_links %}
+                    <div>
+                    {% if link.article_title %}
+                        <a href="/post/{{ link.article_id }}" title="{{ link.link_alt }}">{{ link.article_title }}</a>
+                    {% else %}
+                        <a href="{{ link.external_link }}" title="{{ link.link_alt }}">{{ link.link_text }}</a>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <a href="/articles">All Articles</a>
+        </div>
+        <div class="clear"></div>
+
+        {% if sidebar_tags %}
+        <h3>Tags</h3>
+        <div class="sidebar_link">
+            {% for tag in sidebar_tags %}
+            <a href="/tag/{{ tag }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+        <div class="clear"></div>
+        {% endif %}
+    </div>
+    {% endblock %}
+    <div class="clear"></div>
+
+    {% block footer %}
+    <div class="footer">
+        {{ footer_text }}
+    </div>
+    {% endblock %}
+
+    <!-- Load scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

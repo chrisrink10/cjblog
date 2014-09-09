@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block name %}Login{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="../static/css/admin.css">
+{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        <div class="login_form">
+            <h3>Administer this blog</h3>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% else %}
+                <p>Login with your username and password to administer this blog.</p>
+            {% endif %}
+            <form action="/login" method="post">
+                <div>
+                    <input type="text" name="username" placeholder="Username" class="text_input"/>
+                </div>
+                <div>
+                    <input type="password" name="password" placeholder="Password" class="text_input" />
+                </div>
+                <div>
+                    <input type="submit" name="submit" value="Login" class="button_input" />
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

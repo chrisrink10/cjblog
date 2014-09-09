@@ -1,0 +1,80 @@
+{% extends "admin.html" %}
+
+{% block name %}Edit Article{% endblock %}
+
+{% block body %}
+    <div class="mainbody">
+        {% if article %}
+        <div id="edit_article_preview">
+            <h3>Article Preview</h3>
+            <div class="thoughts_body">
+                <div class="article_header">
+                    <h2>
+                        <a id="preview_link" target="_blank" style="display: none;"></a>
+                        <span id="preview_title"></span>
+                        <div class="article_date">
+                            <span id="preview_date"></span>
+                        </div>
+                    </h2>
+                </div>
+                <div class="clear"></div>
+                <div id="preview_body"></div>
+                <div>
+                    <input name="hide_preview" type="button" class="button_input" value="Hide Preview" />
+                </div>
+            </div>
+        </div>
+        <div id="edit_article_form">
+            {% if create %}
+            <h3>Write a new Article</h3>
+            <form action="/admin/create" method="post">
+            {% elif edit %}
+            <h3>Edit an Article</h3>
+            <form action="/admin/edit/{{ article.id }}" method="post">
+            {% endif %}
+                <div>
+                    <input name="title" type="text" placeholder="Article Title" class="text_input long_text" value="{{ article.title }}" />
+                </div>
+                <div>
+                    <input name="title_link" type="text" placeholder="Title Link" class="text_input long_text" value="{{ article.title_link }}" />
+                </div>
+                <div>
+                    <input name="title_alt" type="text" placeholder="Title Alternate Text" class="text_input long_text" value="{{ article.title_alt }}" />
+                </div>
+                <div>
+                    <input name="date" type="text" placeholder="Composed Date" class="text_input long_text" value="{{ article.date }}" />
+                    <input name="today" type="button" class="button_input" value="Today" />
+                </div>
+                <div class="textarea_container">
+                    <textarea name="body" class="textarea_input">{{ article.body }}</textarea>
+                </div>
+                <div>
+                    <input name="tags" type="text" placeholder="Article Tags" class="text_input long_text" value="{{ article.tag_list|join(', ') }}" />
+                </div>
+                <div>
+                    <label>
+                        <input name="released" class="checkbox_input" type="checkbox" value="1" {% if article.released %} checked="checked" {% endif %} />
+                        <span>This article is released for public viewing.</span>
+                    </label>
+                </div>
+                <div>
+                    <input name="id" type="hidden" value="{{ article.id }}" />
+                    <input name="submit" type="submit" class="button_input" value="Save Changes" />
+                    <input name="preview" type="button" class="button_input" value="Preview" />
+                    <input name="cancel" type="button" class="button_input" value="Cancel" />
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <p class="error">
+            That article doesn't exist. You could
+            <a href="/admin/create">write</a> a new article or just return
+            <a href="/admin">home</a>.
+        </p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/edit.js"></script>
+{% endblock %}
