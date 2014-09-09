@@ -1,0 +1,109 @@
+/*
+cjblog admin css
+
+author: Christopher Rink
+*/
+
+div.login_form {
+
+}
+
+.error {
+    color: red;
+}
+
+input {
+    font-size: 14pt;
+    font-family: "Raleway" sans-serif;
+}
+
+.text_input {
+    border: 1px solid black;
+    border-radius: 2px;
+    outline: none;
+}
+
+.long_text {
+    width: 40%;
+}
+
+.textarea_container {
+    padding: 2px;
+    clear: both;
+    width: 100%;
+}
+
+.textarea_input {
+    border: 1px solid black;
+    border-radius: 2px;
+    outline: none;
+    height: 400px;
+    width: 73%;
+    font-size: 10pt;
+    font-family: monospace;
+}
+
+.small_textarea_input {
+    border: 1px solid black;
+    border-radius: 2px;
+    outline: none;
+    width: 73%;
+    font-size: 10pt;
+    font-family: monospace;
+}
+
+.button_input {
+    background-color: #B28C73;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+.button_input:hover {
+    background-color: gray;
+    cursor: pointer;
+}
+
+.checkbox_input {
+    outline: none;
+    border: 1px solid black;
+}
+
+.select_input {
+    outline: none;
+    border: 1px solid black;
+    font-size: 10pt;
+    font-family: "Raleway" sans-serif;
+}
+
+.admin_sidebar_top {
+    text-align: right;
+    float: right;
+    width: 100%;
+}
+
+#edit_article_preview {
+    display: none;
+}
+
+.delete_confirmation {
+    display: none;
+}
+
+span.fake_link {
+    color: #B28C73;
+}
+
+span.fake_link:hover {
+    cursor: pointer;
+    color: gray;
+}
+
+span.input_title {
+    width: 22%;
+    display: inline-block;
+    font-weight: bold;
+}
+
+label input {
+   display: inline-block;
+}

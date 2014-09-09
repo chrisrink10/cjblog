@@ -86,7 +86,7 @@
                     <span class="input_title" title="The page size is the number of articles which will appear on each page of this blog.">
                         Page Size
                     </span>
-                    <select class="select_input">
+                    <select name="page_size" class="select_input">
                         <option value="1">1</option>
                         {% for i in range(5, 30, 5) %}
                             <option value="{{ i }}"{% if page_size == i %} selected="selected"{% endif %}>{{ i }}</option>
@@ -166,22 +166,6 @@
                     </span>
                     <input name="session_prune_age" type="text" placeholder="Session Prune Age" class="text_input" value="{{ session_prune_age }}" />
                     seconds
-                </label>
-            </div>
-            <div>
-                <label>
-                    <span class="input_title" title="The secret key is the value which encrypts your session data when it is sent to the client.">
-                        Secret Key
-                    </span>
-                    <select class="select_input">
-                        <option value="keep">
-                            Keep my current secret key
-                        </option>
-                        <option value="change">
-                            Change my secret key (this will destroy all current
-                            sessions)
-                        </option>
-                    </select>
                 </label>
             </div>
             <div>
