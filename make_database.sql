@@ -26,6 +26,21 @@ CREATE INDEX released ON articles (released);
 CREATE INDEX title_path ON articles (title_path);
 CREATE INDEX article_date ON articles (date);
 
+CREATE TABLE IF NOT EXISTS pages (
+    id          INTEGER PRIMARY KEY,
+    released    INTEGER,
+    title_path  TEXT,
+    title       TEXT,
+    create_date INTEGER,
+    edit_date   INTEGER,
+    parent      INTEGER,
+    body        TEXT,
+    FOREIGN KEY(parent) REFERENCES pages(id)
+);
+
+CREATE INDEX page_released ON pages (released);
+CREATE INDEX page_title ON pages (title_path);
+
 CREATE TABLE IF NOT EXISTS tags (
     id  INTEGER PRIMARY KEY,
     tag TEXT UNIQUE

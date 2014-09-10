@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block name %}Home{% endblock %}
+{% block name %}{{ page_title }}{% endblock %}
 
 {% block body %}
     <div class="mainbody">
@@ -47,10 +47,9 @@
         {% if pages and pages > 1 and articles %}
         <div class="clear"></div>
         <div class="pages">
-                <span class="label">Jump to Page:</span>
+            <span class="label">Jump to Page:</span>
             {% for page in range(1, pages + 1) %}
-                <a href="/page/{{ page }}">{{ page }}</a>
-                {% if page < (pages - 1) %}, {% endif %}
+                <a href="/{{ page }}">{{ page }}</a>{% if page < pages %},{% endif %}
             {% endfor %}
         </div>
         {% endif %}

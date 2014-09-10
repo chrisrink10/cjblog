@@ -24,7 +24,8 @@ from sqlalchemy import (create_engine,
                         select,
                         func,
                         bindparam,
-                        null)
+                        null,
+                        alias)
 
 # Project module
 try:
@@ -59,6 +60,19 @@ articles = Table('articles', metadata,
 Index('released', articles.c.released)
 Index('title_path', articles.c.title_path)
 Index('article_date', articles.c.date)
+
+pages = Table('pages', metadata,
+              Column('id', Integer, primary_key=True),
+              Column('released', Integer),
+              Column('title_path', String),
+              Column('title', String),
+              Column('create_date', Integer),
+              Column('edit_date', Integer),
+              Column('parent', Integer, ForeignKey('pages.id')),
+              Column('body', String)
+)
+Index('page_released', pages.c.released)
+Index('page_title', pages.c.title_path)
 
 tags = Table('tags', metadata,
              Column('id', Integer, primary_key=True),
@@ -120,6 +134,14 @@ def tags_as_list(tag_names):
         return ()
     tag_names = tag_names.split(",") if len(tag_names) > 0 else ()
     return tuple(tag.strip() for tag in tag_names)
+
+
+def get_render_func(render=True):
+    """Return a function which evaluates whether rendering needs to occur."""
+    if render:
+        return lambda val: util.mkdown(val)
+    else:
+        return lambda val: val
 
 
 def check_login(username, password):
@@ -226,7 +248,8 @@ def article_from_row(row, render=True):
         'title_link': '',
         'title_alt': '',
         'date': date_to_str,
-        'tag_list': tags_as_list
+        'tag_list': tags_as_list,
+        'body': get_render_func(render)
     }
 
     for key, val in article.copy().items():
@@ -235,13 +258,6 @@ def article_from_row(row, render=True):
             article[key] = '' if article[key] is None else article[key]
         else:
             article[key] = ''
-
-    # Body needs special handling
-    if 'body' in row.keys():
-        if render:
-            article['body'] = util.mkdown(row['body'])
-        else:
-            article['body'] = row['body']
 
     return article
 
@@ -432,6 +448,72 @@ def save_article(article_id, title, title_link, title_alt,
 
 
 ############################
+# PAGE FUNCTIONS
+############################
+
+
+def page_from_row(row, render=True):
+    """Given a SQLite row, create an dictionary for an article."""
+    page = {
+        'id': '',
+        'released': bool,
+        'title_path': '',
+        'title': '',
+        'create_date': date_to_str,
+        'edit_date': date_to_str,
+        'parent': '',
+        'body': get_render_func(render)
+    }
+
+    for key, val in page.copy().items():
+        if key in row.keys():
+            page[key] = val(row[key]) if callable(val) else row[key]
+            page[key] = '' if page[key] is None else page[key]
+        else:
+            page[key] = ''
+
+    return page
+
+
+def get_page(page_id=None, title_path=None, render=True, released=None):
+    """Return an article by it's ID."""
+    if page_id is None and title_path is None:
+        raise ValueError("You must specify either an ID or path.")
+
+    # Provide table aliases
+    main = pages.alias("m")
+    parent = pages.alias("p")
+
+    # Generate the proper where condition
+    if page_id is not None:
+        where_cond = (main.c.id == page_id)
+    else:
+        where_cond = (main.c.title_path == title_path)
+
+    # Generate the SQL syntax with SQLAlchemy
+    stmt = select(
+        [main]
+    ).select_from(
+        pages.outerjoin(
+            parent,
+            parent.c.parent == main.c.id
+        )
+    ).where(
+        where_cond
+    ).where(
+        main.c.released == released if released is not None else ""
+    )
+
+    # Get our results
+    conn = engine.connect()
+    result = conn.execute(stmt)
+    row = result.fetchone()
+    page = page_from_row(row, render=render) if row is not None else None
+    conn.close()
+    return page
+
+
+############################
 # TAG FUNCTIONS
 ############################
 
@@ -598,13 +680,13 @@ def prune_sessions():
 def save_config(data):
     """Save configuration options to the database and compile the
     Python config file."""
-    zipped = [{'key_name': k, 'val': v} for k, v in data.items()]
+    zipped = [{'key': k, 'val': v} for k, v in data.items()]
     util.compile_configuration(data)
 
     stmt = configuration.update().where(
-        configuration.c.key_name == bindparam('key_name')
+        configuration.c.key_name == bindparam('key')
     ).values(
-        key_name=bindparam('val')
+        value=bindparam('val')
     )
 
     conn = engine.connect()

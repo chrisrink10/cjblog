@@ -28,7 +28,7 @@ app = Flask(__name__)
 if config.DEBUG:
     app.debug = True
     app.logger.setLevel(logging.DEBUG)
-    app.config['PROPOGATE_EXCEPTIONS'] = True
+    app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # Jinja2 template configuration
 app.jinja_env.trim_blocks = True
@@ -54,7 +54,7 @@ def paginate(page_num, by_tag=None):
 
 
 @app.route('/', defaults={'page_num': 1})
-@app.route('/page/<int:page_num>')
+@app.route('/<int:page_num>')
 def home(page_num):
     """Renders the home page."""
     start, pages = paginate(page_num)
@@ -62,10 +62,29 @@ def home(page_num):
                                      with_body=True,
                                      with_links=True,
                                      released=True)
-    return render_template("main.html",
+    return render_template("article.html",
+                           page_title="Home",
                            articles=articles,
                            pages=pages,
                            show_tags=False)
+
+
+@app.route('/page/<int:page_id>', defaults={'page_title': None})
+@app.route('/page/<page_title>', defaults={'page_id': None})
+def show_page(page_id, page_title):
+    """Shows an individual article."""
+    page = database.get_page(page_id=page_id,
+                             title_path=page_title,
+                             render=True,
+                             released=True)
+
+    # Check if that article exists
+    if page is None:
+        abort(404)
+
+    return render_template("page.html",
+                           page=page,
+                           show_tags=True)
 
 
 @app.route('/post/<int:article_id>', defaults={'title_path': None})
@@ -81,7 +100,8 @@ def show_article(article_id, title_path):
     if article is None:
         abort(404)
 
-    return render_template("main.html",
+    return render_template("article.html",
+                           page_title=article["title"],
                            articles=[article],
                            show_tags=True)
 
@@ -98,7 +118,8 @@ def articles_by_tag(tag_name, page_num):
                                      with_links=True,
                                      released=True,
                                      tag=tag_name)
-    return render_template("main.html",
+    return render_template("article.html",
+                           page_title="Tag: {}".format(tag_name),
                            articles=articles,
                            pages=pages,
                            show_tags=False)
