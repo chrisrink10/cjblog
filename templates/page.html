@@ -5,17 +5,6 @@
 {% block body %}
     <div class="main_body">
         {% if page %}
-            <div class="article_header">
-                <h2>
-                    <span>{{ page.title }}</span>
-                    <div class="article_date">
-                        <a href="/page/{{ sel(page.title_path, page.id) }}">
-                            {{ page.create_date }}
-                        </a>
-                    </div>
-                </h2>
-            </div>
-            <div class="clear"></div>
             {{ page.body|safe }}
         {% else %}
         <p>Nothing to see here!</p>
