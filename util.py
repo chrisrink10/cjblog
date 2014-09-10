@@ -81,6 +81,14 @@ def compile_configuration(data):
              debug=ini.getboolean('CONFIG', 'DEBUG'),
              **compiled)
 
+    # Try to verify that we can compile this configuration before saving
+    # and potentially crashing the application
+    try:
+        _ = compile(cfg, '<string>', 'exec')
+    except (SyntaxError, TypeError):
+        raise CompileError("Invalid Python code generated.")
+
+    # Once we verified compilation is valid, save the file
     with open('config.py', 'w') as f:
         f.write(cfg)
 
@@ -93,3 +101,8 @@ def mkdown(text):
                              extensions=['smarty', 'codehilite'],
                              output_format="html5"
     )
+
+
+class CompileError(Exception):
+    """Returned if we cannot compile the configuration script."""
+    pass
