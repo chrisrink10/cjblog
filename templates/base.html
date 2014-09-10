@@ -49,6 +49,9 @@
 
         {% block sidebar %}
         <div class="sidebar">
+            <div class="sep">
+                <hr>
+            </div>
             {% if admin %}
             <h3>Administration Tasks</h3>
             <div>
@@ -111,6 +114,7 @@
 
     <!-- Load scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

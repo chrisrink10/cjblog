@@ -143,6 +143,10 @@ div.pages a.page_link {
     padding-right: 2px;
 }
 
+div.sep {
+    display: none;
+}
+
 div.sidebar {
     position: relative;
 	float: left;
