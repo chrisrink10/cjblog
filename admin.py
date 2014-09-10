@@ -5,7 +5,8 @@ Renders most of the pages of cjrink.com/admin.
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
 from datetime import datetime
 from functools import update_wrapper
-import traceback
+from importlib import reload
+
 from flask import (Blueprint,
                    current_app,
                    render_template,
@@ -52,22 +53,29 @@ def login_required(func):
 @login_required
 def home():
     """Render the administrator home page."""
-    return render_template("home.html",
+    return render_template("admin.html",
+                           admin=True,
                            released=database.get_articles(with_body=False,
                                                           with_links=False,
                                                           released=True),
                            unreleased=database.get_articles(with_body=False,
-                                                            released=False))
+                                                            released=False),
+                           adm_page_list=database.get_pages(with_body=False,
+                                                            released=None,
+                                                            only_links=False))
 
 
 @admin.route('/config', methods=['GET'])
 @login_required
 def edit_config():
     return render_template("config.html",
+                           admin=True,
                            sidebar_blurb_markdown=config.ABOUT_BLURB,
                            page_size=config.PAGE_SIZE,
                            session_expire=config.SESSION_EXPIRE,
-                           session_prune_age=config.SESSION_PRUNE_AGE)
+                           session_prune_age=config.SESSION_PRUNE_AGE,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
 @admin.route('/config', methods=['POST'])
@@ -91,33 +99,46 @@ def save_config():
 
         database.save_config(data)
     except TypeError:
-        current_app.logger.debug(traceback.format_exc())
-        error = "Session expire and session prune age must be integer values."
+        error = str("Page size, session expire and session prune age must be "
+                    "integer values.")
     except ValueError:
-        current_app.logger.debug(traceback.format_exc())
-        error = str("Session expire and session prune age must be integer "
-                    "values greater than or equal to 1.")
+        error = str("Page size, session expire, and session prune age must be "
+                    "integer values greater than or equal to 1.")
+    except util.CompileError:
+        error = str("There was an error compiling the configuration options you"
+                    " selected. Please try again.")
+    else:
+        # If no exception occurred, reload the configuration file
+        reload(config)
+
     return render_template("config.html",
+                           admin=True,
                            error=error,
                            sidebar_blurb_markdown=config.ABOUT_BLURB,
                            page_size=config.PAGE_SIZE,
                            session_expire=config.SESSION_EXPIRE,
-                           session_prune_age=config.SESSION_PRUNE_AGE)
+                           session_prune_age=config.SESSION_PRUNE_AGE,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
-@admin.route('/create', methods=['GET'])
+@admin.route('/article/create', methods=['GET'])
 @login_required
 def create_article():
     """Render the article creation page."""
-    return render_template("edit.html",
+    return render_template("edit_article.html",
+                           admin=True,
                            article={'title': ""},
-                           create=True)
+                           create=True,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
-@admin.route('/create', methods=['POST'])
+@admin.route('/article/create', methods=['POST'])
 @login_required
 def save_new_article():
-    """Render the article creation page."""
+    """Save a new article and then redirect to the edit page for that
+    new article."""
     new_id = database.create_article(request.form['title'],
                                      request.form['title_link'],
                                      request.form['title_alt'],
@@ -128,7 +149,7 @@ def save_new_article():
     return redirect(url_for("admin.edit_article", article_id=new_id))
 
 
-@admin.route('/delete/<int:article_id>')
+@admin.route('/article/delete/<int:article_id>')
 @login_required
 def delete_article(article_id):
     """Delete an article and then redirect home."""
@@ -136,21 +157,23 @@ def delete_article(article_id):
     return redirect(url_for('admin.home'))
 
 
-@admin.route('/edit/<int:article_id>', methods=['GET'])
+@admin.route('/article/edit/<int:article_id>', methods=['GET'])
 @login_required
 def edit_article(article_id):
     """Render the article editing page."""
     article = database.get_article(article_id, render=False)
-    return render_template("edit.html",
+    return render_template("edit_article.html",
+                           admin=True,
                            article=article,
-                           edit=True)
+                           edit=True,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
-@admin.route('/edit/<int:article_id>', methods=['POST'])
+@admin.route('/article/edit/<int:article_id>', methods=['POST'])
 @login_required
 def save_article(article_id):
     """Save changes to an article."""
-    current_app.logger.debug(request.form)
     database.save_article(article_id,
                           request.form['title'],
                           request.form['title_link'],
@@ -162,23 +185,97 @@ def save_article(article_id):
     return redirect(url_for("admin.edit_article", article_id=article_id))
 
 
+@admin.route('/page/create', methods=['GET'])
+@login_required
+def create_page():
+    """Render the page creation page."""
+    return render_template("edit_page.html",
+                           admin=True,
+                           page={'title': ""},
+                           create=True,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
+
+
+@admin.route('/page/create', methods=['POST'])
+@login_required
+def save_new_page():
+    """Save a new page and then redirect to the edit page for that new page."""
+    new_id = database.create_page(1 if 'released' in request.form else 0,
+                                  request.form['pg_order'],
+                                  request.form['title'],
+                                  1 if 'incl_link' in request.form else 0,
+                                  request.form['body'])
+    return redirect(url_for("admin.edit_page", page_id=new_id))
+
+
+@admin.route('/page/delete/<int:page_id>')
+@login_required
+def delete_page(page_id):
+    """Delete a page and then redirect home."""
+    database.delete_page(page_id)
+    return redirect(url_for('admin.home'))
+
+
+@admin.route('/page/edit/<int:page_id>', methods=['GET'])
+@login_required
+def edit_page(page_id):
+    """Render the page editing page."""
+    page = database.get_page(page_id, render=False)
+    return render_template("edit_page.html",
+                           admin=True,
+                           page=page,
+                           edit=True,
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
+
+
+@admin.route('/page/edit/<int:page_id>', methods=['POST'])
+@login_required
+def save_page(page_id):
+    """Save changes to a page."""
+    database.save_page(page_id,
+                       1 if 'released' in request.form else 0,
+                       request.form['pg_order'],
+                       request.form['title'],
+                       1 if 'incl_link' in request.form else 0,
+                       request.form['body'])
+    return redirect(url_for("admin.edit_page", page_id=page_id))
+
+
 @admin.route('/links')
 @login_required
 def edit_links():
     """Render the sidebar links configuration page."""
-    return render_template("links.html")
+    return render_template("links.html",
+                           admin=True,
+                           article_list=database.get_articles(with_body=False,
+                                                              released=True),
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
 @admin.route('/links/add', methods=['POST'])
 @login_required
 def add_link():
     """Add a new sidebar link."""
-    current_app.logger.debug(request.form)
-    database.add_sidebar_link(article_id=request.form['article'],
-                              external_link=request.form['external_link'],
-                              link_text=request.form['link_text'],
-                              link_alt=request.form['link_alt'])
-    return redirect(url_for("admin.edit_links"))
+    try:
+        database.add_sidebar_link(article_id=request.form['article'],
+                                  external_link=request.form['external_link'],
+                                  link_text=request.form['link_text'],
+                                  link_alt=request.form['link_alt'])
+        error = None
+    except ValueError:
+        error = str("Please select only either an article or provide an "
+                    "external link.")
+
+    return render_template("links.html",
+                           admin=True,
+                           error=error,
+                           article_list=database.get_articles(with_body=False,
+                                                              released=True),
+                           page_list=database.get_pages(with_body=False,
+                                                        released=None))
 
 
 @admin.route('/links/delete/<int:link_id>')

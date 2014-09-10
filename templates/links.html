@@ -1,4 +1,4 @@
-{% extends "admin.html" %}
+{% extends "base.html" %}
 
 {% block name %}Sidebar Links{% endblock %}
 
@@ -6,7 +6,7 @@
     <div id="edit_links_template">
 
     </div>
-    <div class="mainbody">
+    <div class="main_body">
         <h3>Edit Sidebar Links</h3>
         {% if error %}
             <p class="error">{{ error }}</p>
@@ -16,11 +16,20 @@
         <div>
             <form action="/admin/links/add" method="post">
                 <div>
-                    <input type="text" name="article" placeholder="Article" class="long_text text_input" value="" />
-                    <input type="text" name="external_link" placeholder="External Link" class="long_text text_input" value="" />
+                    <select id="link_article" name="article" class="long_text">
+                        <option value="">-None-</option>
+                        {% for article in article_list %}
+                        <option value="{{ article.id }}">{{ article.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <input type="text" id="external_link" name="external_link" placeholder="External Link" class="long_text text_input" value="" />
                 </div>
                 <div>
                     <input type="text" name="link_text" placeholder="Link Text" class="long_text text_input" value="" />
+                </div>
+                <div>
                     <input type="text" name="link_alt" placeholder="Link Alternate Text" class="long_text text_input" value="" />
                 </div>
                 <div>

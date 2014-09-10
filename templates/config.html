@@ -1,10 +1,9 @@
-{% extends "admin.html" %}
+{% extends "base.html" %}
 
 {% block name %}Configure Settings{% endblock %}
 
 {% block body %}
-    <div class="mainbody">
-        <h2>Configure this Blog</h2>
+    <div class="main_body">
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}

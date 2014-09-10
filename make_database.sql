@@ -29,16 +29,18 @@ CREATE INDEX article_date ON articles (date);
 CREATE TABLE IF NOT EXISTS pages (
     id          INTEGER PRIMARY KEY,
     released    INTEGER,
+    pg_order    INTEGER,
     title_path  TEXT,
     title       TEXT,
     create_date INTEGER,
     edit_date   INTEGER,
-    parent      INTEGER,
-    body        TEXT,
-    FOREIGN KEY(parent) REFERENCES pages(id)
+    incl_link   INTEGER,
+    body        TEXT
 );
 
 CREATE INDEX page_released ON pages (released);
+CREATE INDEX page_link ON pages (incl_link);
+CREATE INDEX page_order ON pages (pg_order);
 CREATE INDEX page_title ON pages (title_path);
 
 CREATE TABLE IF NOT EXISTS tags (

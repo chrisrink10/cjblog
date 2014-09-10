@@ -1,26 +1,97 @@
 {% extends "base.html" %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="/css/admin.css">
+{% block name %}Admin Home{% endblock %}
+
+{% block body %}
+    <div class="main_body">
+        <h3>Page List</h3>
+        <p>
+            Pages are the stalwarts of your arsenal. Steady and stoic, they
+            will stand the test of time. We would expect for you to create
+            new pages relatively infrequently and edit the existing pages often.
+            Links to parent pages will appear in the top bar on this site.
+            Click a page to edit it or <a href="/admin/page/create">create a new page</a>.
+        </p>
+        <div class="page_list">
+        {% if adm_page_list %}
+        <ul>
+        {% for page in adm_page_list %}
+        <li>
+            <strong>
+                <a href="/admin/page/edit/{{ page.id }}">{{ page.title }}</a>
+            </strong>
+            {% if page.edit_date %}
+                last edited on <em>{{ page.edit_date }}</em>.
+            {% else %}
+                created on <em>{{ page.create_date }}</em>.
+            {% endif %}
+            <span class="delete">
+                <span class="delete_question">
+                    (<span class="fake_link delete_link">delete?</span>)
+                </span>
+                <span class="delete_confirmation">
+                    (<a class="delete_yes" href="/admin/page/delete/{{ page.id }}">yes</a> or <span class="fake_link delete_no">no</span>)
+                </span>
+            </span>
+        </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p class="error">
+            It appears there are no pages here! You could always
+            <a href="/admin/page/create">create</a> one though.
+        </p>
+        {% endif %}
+        </div>
+
+        <h3>Article List</h3>
+        {% if released or unreleased %}
+        <p>
+            Articles are the recurring content of your site. In general, we would
+            expect for new articles to be created relatively frequently and
+            edited relatively infrequently. Click an article title to edit it or
+            <a href="/admin/article/create">write a new article.</a>
+        </p>
+        <div class="article_list">
+        {% for item in ({'Unreleased': unreleased}, {'Released': released}) %}
+        {% for name, articles in item.items() %}
+            {% if articles %}
+            <h4>{{ name }} Articles</h4>
+            <ul>
+            {% for article in articles %}
+                <li>
+                    {% if article.title == "" %}
+                    <a href="/admin/article/edit/{{ article.id }}">Untitled</a>
+                    {% else %}
+                    <strong>
+                        <a href="/admin/article/edit/{{ article.id }}">{{ article.title }}</a>
+                    </strong>
+                    {% endif %}
+                    written on <em>{{ article.date }}</em>
+                    <span class="delete">
+                        <span class="delete_question">
+                            (<span class="fake_link delete_link">delete?</span>)
+                        </span>
+                        <span class="delete_confirmation">
+                            (<a class="delete_yes" href="/admin/article/delete/{{ article.id }}">yes</a> or <span class="fake_link delete_no">no</span>)
+                        </span>
+                    </span>
+                </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+        {% endfor %}
+        {% endfor %}
+        </div>
+        {% else %}
+        <p class="error">
+            It appears there are no articles here! You could always
+            <a href="/admin/article/create">write</a> one though.
+        </p>
+        {% endif %}
+    </div>
 {% endblock %}
 
-{% block sidebar %}
-    <div class="sidebar">
-        <div class="admin_sidebar_top">
-            <h3>Administration Tasks</h3>
-            <div>
-                <a href="/admin">admin home</a>
-            </div>
-            <div>
-                <a href="/admin/links">sidebar links</a>
-            </div>
-            <div>
-                <a href="/admin/config">configuration</a>
-            </div>
-            <div>
-                <a href="/logout">logout</a>
-            </div>
-        </div>
-        <div class="clear"></div>
-    </div>
+{% block scripts %}
+    <script src="/js/admin.js"></script>
 {% endblock %}

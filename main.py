@@ -53,6 +53,24 @@ def paginate(page_num, by_tag=None):
     return start, pages
 
 
+def check_logged_in():
+    """Checks whether the user has a valid session."""
+    if not 'username' in session or not 'key' in session:
+        app.logger.debug("Could not find 'username' or 'key'.")
+        session.clear()
+        return False
+
+    # Check whether session values are either expired or invalid
+    valid, current = database.check_session(session['username'],
+                                            session['key'])
+    if not valid or not current:
+        app.logger.debug("Invalid or outdated session.")
+        session.clear()
+        return False
+
+    return True
+
+
 @app.route('/', defaults={'page_num': 1})
 @app.route('/<int:page_num>')
 def home(page_num):
@@ -228,6 +246,11 @@ def jinja_context():
 
     return dict(
         sel=sel,
+        admin=check_logged_in(),
+        page_list=database.get_pages(released=True,
+                                     render=False,
+                                     with_body=False,
+                                     only_links=True),
         header_title=Markup.escape(config.MAIN_TITLE),
         header_subtitle=Markup.escape(config.SUBTITLE),
         browser_title=Markup.escape(config.BROWSER_TITLE),

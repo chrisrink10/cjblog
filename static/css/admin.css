@@ -17,6 +17,14 @@ input {
     font-family: "Raleway" sans-serif;
 }
 
+select {
+    font-size: 14pt;
+    font-family: "Raleway" sans-serif;
+    border: 1px solid black;
+    border-radius: 2px;
+    outline: none;
+}
+
 .text_input {
     border: 1px solid black;
     border-radius: 2px;
@@ -73,12 +81,6 @@ input {
     border: 1px solid black;
     font-size: 10pt;
     font-family: "Raleway" sans-serif;
-}
-
-.admin_sidebar_top {
-    text-align: right;
-    float: right;
-    width: 100%;
 }
 
 #edit_article_preview {

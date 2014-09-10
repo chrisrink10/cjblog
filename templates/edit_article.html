@@ -1,9 +1,9 @@
-{% extends "admin.html" %}
+{% extends "base.html" %}
 
 {% block name %}Edit Article{% endblock %}
 
 {% block body %}
-    <div class="mainbody">
+    <div class="main_body">
         {% if article %}
         <div id="edit_article_preview">
             <h3>Article Preview</h3>
@@ -27,10 +27,10 @@
         <div id="edit_article_form">
             {% if create %}
             <h3>Write a new Article</h3>
-            <form action="/admin/create" method="post">
+            <form action="/admin/article/create" method="post">
             {% elif edit %}
             <h3>Edit an Article</h3>
-            <form action="/admin/edit/{{ article.id }}" method="post">
+            <form action="/admin/article/edit/{{ article.id }}" method="post">
             {% endif %}
                 <div>
                     <input name="title" type="text" placeholder="Article Title" class="text_input long_text" value="{{ article.title }}" />
@@ -68,7 +68,7 @@
         {% else %}
         <p class="error">
             That article doesn't exist. You could
-            <a href="/admin/create">write</a> a new article or just return
+            <a href="/admin/article/create">write</a> a new article or just return
             <a href="/admin">home</a>.
         </p>
         {% endif %}

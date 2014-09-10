@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block name %}Edit Page{% endblock %}
+
+{% block body %}
+    <div class="main_body">
+        {% if page %}
+        <div id="edit_article_preview">
+            <h3>Page Preview</h3>
+            <div class="thoughts_body">
+                <div class="article_header">
+                    <h2>
+                        <a id="preview_link" target="_blank" style="display: none;"></a>
+                        <span id="preview_title"></span>
+                        <div class="article_date">
+                            <span id="preview_date"></span>
+                        </div>
+                    </h2>
+                </div>
+                <div class="clear"></div>
+                <div id="preview_body"></div>
+                <div>
+                    <input name="hide_preview" type="button" class="button_input" value="Hide Preview" />
+                </div>
+            </div>
+        </div>
+        <div id="edit_article_form">
+            {% if create %}
+            <h3>Write a new Page</h3>
+            <form action="/admin/page/create" method="post">
+            {% elif edit %}
+            <h3>Edit an Page</h3>
+            <form action="/admin/page/edit/{{ page.id }}" method="post">
+            {% endif %}
+                <div>
+                    <input name="title" type="text" placeholder="Page Title" class="text_input long_text" value="{{ page.title }}" />
+                </div>
+                <div>
+                    <input name="pg_order" type="text" placeholder="Page Order" class="text_input" value="{{ page.pg_order }}" />
+                    <label>
+                        <input name="incl_link" class="checkbox_input" type="checkbox" value="1" {% if page.incl_link %} checked="checked" {% endif %} />
+                        <span>Show this link on the top bar.</span>
+                    </label>
+                </div>
+                <div class="textarea_container">
+                    <textarea name="body" class="textarea_input">{{ page.body }}</textarea>
+                </div>
+                <div>
+                    <label>
+                        <input name="released" class="checkbox_input" type="checkbox" value="1" {% if page.released %} checked="checked" {% endif %} />
+                        <span>This page is released for public viewing.</span>
+                    </label>
+                </div>
+                <div>
+                    <input name="id" type="hidden" value="{{ page.id }}" />
+                    <input name="submit" type="submit" class="button_input" value="Save Changes" />
+                    <input name="preview" type="button" class="button_input" value="Preview" />
+                    <input name="cancel" type="button" class="button_input" value="Cancel" />
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <p class="error">
+            That page doesn't exist. You could
+            <a href="/admin/page/create">write</a> a new page or just return
+            <a href="/admin">home</a>.
+        </p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/edit.js"></script>
+{% endblock %}

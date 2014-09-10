@@ -3,13 +3,10 @@
 Performs all of the database manipulation for cjrink.com.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
-# Standard Library
-import configparser
 from datetime import date
 from math import ceil
 import re
 
-# External libraries
 import bcrypt
 from flask import current_app
 from dateutil import parser
@@ -24,15 +21,9 @@ from sqlalchemy import (create_engine,
                         select,
                         func,
                         bindparam,
-                        null,
-                        alias)
+                        null)
 
-# Project module
-try:
-    import config
-except ImportError as e:
-    current_app.logger.error("Could not find configuration file.")
-    raise
+import config
 import util
 
 
@@ -64,14 +55,17 @@ Index('article_date', articles.c.date)
 pages = Table('pages', metadata,
               Column('id', Integer, primary_key=True),
               Column('released', Integer),
+              Column('pg_order', Integer),
               Column('title_path', String),
               Column('title', String),
               Column('create_date', Integer),
               Column('edit_date', Integer),
-              Column('parent', Integer, ForeignKey('pages.id')),
+              Column('incl_link', Integer),
               Column('body', String)
 )
 Index('page_released', pages.c.released)
+Index('page_link', pages.c.incl_link)
+Index('page_order', pages.c.pg_order)
 Index('page_title', pages.c.title_path)
 
 tags = Table('tags', metadata,
@@ -108,6 +102,8 @@ Index('config_key', configuration.c.key_name)
 
 def date_to_str(timestamp):
     """Return a date string in a consistent format from a UNIX timestamp."""
+    if timestamp is None:
+        return ""
     dt = date.fromtimestamp(int(timestamp))
     dt_str = dt.strftime("%B {d.day}, %Y")
     return dt_str.format(d=dt) or ""
@@ -456,12 +452,13 @@ def page_from_row(row, render=True):
     """Given a SQLite row, create an dictionary for an article."""
     page = {
         'id': '',
+        'pg_order': '',
         'released': bool,
         'title_path': '',
         'title': '',
         'create_date': date_to_str,
         'edit_date': date_to_str,
-        'parent': '',
+        'incl_link': '',
         'body': get_render_func(render)
     }
 
@@ -475,33 +472,47 @@ def page_from_row(row, render=True):
     return page
 
 
+def create_page(released, pg_order, title, incl_link, body):
+    """Save a new page to the database."""
+    stmt = pages.insert().values(
+        released=released,
+        pg_order=pg_order,
+        title_path=url_safe_string(title),
+        title=title,
+        create_date=func.strftime("%s", "now"),
+        incl_link=incl_link,
+        body=body
+    )
+    conn = engine.connect()
+    result = conn.execute(stmt)
+
+    return result.inserted_primary_key[0]
+
+
+def delete_page(page_id):
+    """Delete a page by its ID."""
+    stmt = pages.delete().where(pages.c.id == page_id)
+    conn = engine.connect()
+    conn.execute(stmt)
+    conn.close()
+
+
 def get_page(page_id=None, title_path=None, render=True, released=None):
-    """Return an article by it's ID."""
+    """Return a page by it's ID or title-path."""
     if page_id is None and title_path is None:
         raise ValueError("You must specify either an ID or path.")
 
-    # Provide table aliases
-    main = pages.alias("m")
-    parent = pages.alias("p")
-
     # Generate the proper where condition
     if page_id is not None:
-        where_cond = (main.c.id == page_id)
+        where_cond = (pages.c.id == page_id)
     else:
-        where_cond = (main.c.title_path == title_path)
+        where_cond = (pages.c.title_path == title_path)
 
     # Generate the SQL syntax with SQLAlchemy
-    stmt = select(
-        [main]
-    ).select_from(
-        pages.outerjoin(
-            parent,
-            parent.c.parent == main.c.id
-        )
-    ).where(
+    stmt = select([pages]).where(
         where_cond
     ).where(
-        main.c.released == released if released is not None else ""
+        pages.c.released == released if released is not None else ""
     )
 
     # Get our results
@@ -511,6 +522,65 @@ def get_page(page_id=None, title_path=None, render=True, released=None):
     page = page_from_row(row, render=render) if row is not None else None
     conn.close()
     return page
+
+
+def get_pages(released=None, render=True, with_body=True, only_links=True):
+    """Return all pages."""
+    page_list = []
+
+    # Generate the column list
+    cols = [
+        pages.c.id,
+        pages.c.released,
+        pages.c.pg_order,
+        pages.c.title_path,
+        pages.c.title,
+        pages.c.create_date,
+        pages.c.edit_date]
+
+    # Include the body
+    if with_body:
+        cols.append(pages.c.body)
+
+    # Generate the SQL syntax with SQLAlchemy
+    stmt = select(cols).order_by(
+        pages.c.pg_order.asc()
+    )
+
+    # Check for released pages if requested
+    if released is not None:
+        stmt = stmt.where(
+            (pages.c.released == released)
+        )
+
+    # Only return pages which are supposed to be top links
+    if only_links:
+        stmt = stmt.where(
+            (pages.c.incl_link == only_links)
+        )
+
+    # Get our results
+    conn = engine.connect()
+    for row in conn.execute(stmt):
+        page = page_from_row(row, render=render)
+        page_list.append(page)
+    conn.close()
+    return page_list
+
+
+def save_page(page_id, released, pg_order, title, incl_link, body):
+    """Updates an existing page."""
+    stmt = pages.update().values(
+        released=released,
+        pg_order=pg_order,
+        title_path=url_safe_string(title),
+        title=title,
+        edit_date=func.strftime('%s', 'now'),
+        incl_link=incl_link,
+        body=body
+    ).where(pages.c.id == page_id)
+    conn = engine.connect()
+    conn.execute(stmt)
 
 
 ############################

@@ -21,4 +21,13 @@ $(document).ready(function() {
         delSpan.find(".delete_question").show();
         delSpan.find(".delete_confirmation").hide();
     });
+
+    $("#link_article").on("change", function() {
+        var id = $(this).val();
+        if (id == "") {
+            $("#external_link").show();
+        } else {
+            $("#external_link").hide();
+        }
+    })
 });
