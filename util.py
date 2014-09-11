@@ -7,6 +7,8 @@ import configparser
 import markdown
 import os
 
+INI_LOC = 'config.ini'
+CFG_LOC = 'config.py'
 
 # These
 defaults = {
@@ -25,11 +27,11 @@ defaults = {
 
 def compile_configuration(data):
     """Compile a configuration file from database"""
-    if not isinstance(data, (dict, None)):
+    if not isinstance(data, (dict, type(None))):
         raise TypeError("Configuration information is required.")
 
     ini = configparser.ConfigParser()
-    ini.read('config.ini')
+    ini.read(INI_LOC)
 
     compiled = {
         'main_title': data['main_title'] or defaults['main_title'],
@@ -89,7 +91,7 @@ def compile_configuration(data):
         raise CompileError("Invalid Python code generated.")
 
     # Once we verified compilation is valid, save the file
-    with open('config.py', 'w') as f:
+    with open(CFG_LOC, 'w') as f:
         f.write(cfg)
 
     return
