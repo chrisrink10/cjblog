@@ -7,10 +7,12 @@ import configparser
 import markdown
 import os
 
-INI_LOC = 'config.ini'
-CFG_LOC = 'config.py'
+# Make sure we handle the variable path (especially with venvs)
+_current_dir = os.path.dirname(os.path.realpath(__file__))
+_ini_loc = os.path.join(_current_dir, 'config.ini')
+_cfg_loc = os.path.join(_current_dir, 'config.py')
 
-# These
+# These are some basic defaults, just in case we fail to get any value
 defaults = {
     'main_title': 'my new blog',
     'subtitle': 'has a subtitle',
@@ -31,7 +33,7 @@ def compile_configuration(data):
         raise TypeError("Configuration information is required.")
 
     ini = configparser.ConfigParser()
-    ini.read(INI_LOC)
+    ini.read(_ini_loc)
 
     compiled = {
         'main_title': data['main_title'] or defaults['main_title'],
@@ -91,7 +93,7 @@ def compile_configuration(data):
         raise CompileError("Invalid Python code generated.")
 
     # Once we verified compilation is valid, save the file
-    with open(CFG_LOC, 'w') as f:
+    with open(_cfg_loc, 'w') as f:
         f.write(cfg)
 
     return
@@ -102,7 +104,7 @@ def mkdown(text):
     return markdown.markdown(text,
                              extensions=['smarty', 'codehilite'],
                              output_format="html5"
-    )
+                             )
 
 
 class CompileError(Exception):
