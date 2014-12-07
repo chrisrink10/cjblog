@@ -1,9 +1,9 @@
 /*
-cjblog :: make_database script
-
-This script would create a valid schema for a SQLite database.
-
-Author: Christopher Rink (chrisrink10 at gmail dot com)
+ * cjblog :: make_database script
+ *
+ * This script would create a valid schema for a SQLite database.
+ *
+ * Author: Christopher Rink (chrisrink10 at gmail dot com)
  */
 CREATE TABLE IF NOT EXISTS users (
     id        INTEGER PRIMARY KEY,
