@@ -15,10 +15,10 @@ from flask import (Flask,
                    abort,
                    Markup)
 
-from admin import admin
-import config
-import database
-import util
+from cjblog.admin import admin
+import cjblog.config as config
+import cjblog.database as database
+import cjblog.util as util
 
 
 # Set up Flask

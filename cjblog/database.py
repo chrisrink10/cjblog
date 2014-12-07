@@ -23,8 +23,8 @@ from sqlalchemy import (create_engine,
                         bindparam,
                         null)
 
-import config
-import util
+import cjblog.config as config
+import cjblog.util as util
 
 
 # Configure SQLAlchemy

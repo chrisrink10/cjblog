@@ -15,9 +15,9 @@ from flask import (Blueprint,
                    redirect,
                    url_for,
                    request)
-import config
-import database
-import util
+import cjblog.config as config
+import cjblog.database as database
+import cjblog.util as util
 
 
 admin = Blueprint("admin", __name__, url_prefix='/admin')
