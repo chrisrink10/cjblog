@@ -15,7 +15,7 @@ from flask import (Flask,
                    abort,
                    Markup)
 
-from cjblog.admin import admin
+from cjblog import admin
 import cjblog.config as config
 import cjblog.database as database
 import cjblog.util as util
@@ -55,7 +55,7 @@ def paginate(page_num, by_tag=None):
 
 def check_logged_in():
     """Checks whether the user has a valid session."""
-    if not 'username' in session or not 'key' in session:
+    if 'username' not in session or 'key' not in session:
         app.logger.debug("Could not find 'username' or 'key'.")
         session.clear()
         return False
