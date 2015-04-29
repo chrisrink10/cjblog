@@ -62,15 +62,6 @@ CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY(user) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS links (
-    id          INTEGER PRIMARY KEY,
-    article_id  INTEGER,
-    link        TEXT,
-    link_text   TEXT,
-    link_alt    TEXT,
-    FOREIGN KEY(article_id) REFERENCES articles(id)
-);
-
 CREATE TABLE IF NOT EXISTS configuration (
     id        INTEGER PRIMARY KEY,
     key_name  TEXT,
