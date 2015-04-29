@@ -16,10 +16,10 @@
         </div>
         <div id="edit_article_form">
             {% if create %}
-            <h3>Write a new Page</h3>
+            <h1>Write a new Page</h1>
             <form action="/admin/page/create" method="post">
             {% elif edit %}
-            <h3>Edit an Page</h3>
+            <h1>Edit an Page</h1>
             <form action="/admin/page/edit/{{ page.id }}" method="post">
             {% endif %}
                 <div>
