@@ -660,67 +660,6 @@ def get_all_tags(released=True):
 
 
 ############################
-# SIDEBAR LINK FUNCTIONS
-############################
-
-def add_sidebar_link(article_id=None, external_link=None,
-                     link_text=None, link_alt=None):
-    """Add a new sidebar link."""
-    has_neither = ((article_id is None or article_id == '') and
-                   (external_link is None or external_link == ''))
-    has_both = ((article_id is not None and article_id != '') and
-                (external_link is not None and external_link != ''))
-    if has_neither:
-        raise ValueError("Please specify either an article or external link.")
-    if has_both:
-        raise ValueError("Please specify only an article or external link.")
-
-    args = {
-        'article_id': article_id if not external_link else '',
-        'link': external_link if not article_id else '',
-        'link_text': link_text,
-        'link_alt': link_alt
-    }
-    stmt = links.insert()
-    conn = engine.connect()
-    result = conn.execute(stmt, args)
-    conn.close()
-
-    return result.inserted_primary_key[0]
-
-
-def delete_sidebar_link(link_id):
-    """Delete a sidebar link by it's ID."""
-    stmt = links.delete().where(links.c.id == link_id)
-    conn = engine.connect()
-    conn.execute(stmt)
-    conn.close()
-
-
-def get_sidebar_links():
-    """Return a list of sidebar links."""
-    stmt = select([links, articles.c.title]).select_from(
-        links.outerjoin(articles, links.c.article_id == articles.c.id)
-    )
-    conn = engine.connect()
-    result = conn.execute(stmt)
-    sidebar_links = []
-    for row in result:
-        link = {
-            'link_id': row['id'],
-            'article_id': row['article_id'],
-            'article_title': row['title'],
-            'external_link': row['link'],
-            'link_text': row['link_text'],
-            'link_alt': row['link_alt']
-        }
-        sidebar_links.append(link)
-
-    conn.close()
-    return sidebar_links
-
-
-############################
 # MAINTENANCE FUNCTIONS
 ############################
 

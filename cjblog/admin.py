@@ -243,49 +243,6 @@ def save_page(page_id):
     return redirect(url_for("admin.edit_page", page_id=page_id))
 
 
-@admin.route('/links')
-@login_required
-def edit_links():
-    """Render the sidebar links configuration page."""
-    return render_template("links.html",
-                           admin=True,
-                           article_list=database.get_articles(with_body=False,
-                                                              released=True),
-                           page_list=database.get_pages(with_body=False,
-                                                        released=None))
-
-
-@admin.route('/links/add', methods=['POST'])
-@login_required
-def add_link():
-    """Add a new sidebar link."""
-    try:
-        database.add_sidebar_link(article_id=request.form['article'],
-                                  external_link=request.form['external_link'],
-                                  link_text=request.form['link_text'],
-                                  link_alt=request.form['link_alt'])
-        error = None
-    except ValueError:
-        error = str("Please select only either an article or provide an "
-                    "external link.")
-
-    return render_template("links.html",
-                           admin=True,
-                           error=error,
-                           article_list=database.get_articles(with_body=False,
-                                                              released=True),
-                           page_list=database.get_pages(with_body=False,
-                                                        released=None))
-
-
-@admin.route('/links/delete/<int:link_id>')
-@login_required
-def delete_link(link_id):
-    """Delete a sidebar link."""
-    database.delete_sidebar_link(link_id)
-    return redirect(url_for("admin.edit_links"))
-
-
 @admin.route('/tomarkdown', methods=['POST'])
 @login_required
 def to_markdown():
