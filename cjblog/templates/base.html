@@ -9,108 +9,69 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <div class="top_bar">
-        <div class="top_bar_image">
-            <a href="/">
-                <img src="{{ sidebar_image }}" alt="{{ sidebar_image_alt }}" />
-            </a>
-        </div>
-        <div class="header">
-            <div>
-                <span class="title">
-                    {% block title %}
-                    {{ header_title }}
-                    {% endblock %}
-                </span>
-                <span class="subtitle">
-                    {% block subtitle %}
-                    {{ header_subtitle }}
-                    {% endblock %}
-                </span>
-            </div>
-        </div>
-        <div class="header_links">
-            <div class="link">
-                <a href="/">Home</a>
-            </div>
-            {% if page_list %}
-            {% for page in page_list %}
-            <div class="link">
-                <a href="/page/{{ page.title_path }}">{{ page.title }}</a>
-            </div>
-            {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-    <div class="main_content">
-        {% block body %}
-
-        {% endblock %}
-
-        {% block sidebar %}
-        <div class="sidebar">
-            <div class="sep">
-                <hr>
+    <div class="body">
+        <div class="top_bar">
+            <div class="top_bar_image">
+                <a href="/">
+                    <img src="{{ sidebar_image }}" alt="{{ sidebar_image_alt }}" />
+                </a>
             </div>
             {% if admin %}
-            <h3>Administration Tasks</h3>
-            <div>
-                <a href="/admin">admin home</a>
+            <div class="admin_links">
+                <div>
+                    <a href="/admin">admin home</a>
+                </div>
+                <div>
+                    <a href="/admin/config">configuration</a>
+                </div>
+                <div>
+                    <a href="/logout">logout</a>
+                </div>
             </div>
-            <div>
-                <a href="/admin/links">sidebar links</a>
-            </div>
-            <div>
-                <a href="/admin/config">configuration</a>
-            </div>
-            <div>
-                <a href="/logout">logout</a>
-            </div>
-            <hr />
-            <div class="clear"></div>
             {% endif %}
-
-            <div class="sidebar_about">
-                {{ sidebar_blurb }}
+            <div class="header">
+                <div>
+                    <span class="title">
+                        {% block title %}
+                        {{ header_title }}
+                        {% endblock %}
+                    </span>
+                    <span class="subtitle">
+                        {% block subtitle %}
+                        {{ header_subtitle }}
+                        {% endblock %}
+                    </span>
+                </div>
             </div>
-            <div class="clear"></div>
-
-            <h3>Links</h3>
-            <div class="sidebar_link">
-                {% if sidebar_links %}
-                    {% for link in sidebar_links %}
-                        <div>
-                        {% if link.article_title %}
-                            <a href="/post/{{ link.article_id }}" title="{{ link.link_alt }}">{{ link.article_title }}</a>
-                        {% else %}
-                            <a href="{{ link.external_link }}" title="{{ link.link_alt }}">{{ link.link_text }}</a>
-                        {% endif %}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <a href="/articles">All Articles</a>
-            </div>
-            <div class="clear"></div>
-
-            {% if sidebar_tags %}
-            <h3>Tags</h3>
-            <div class="sidebar_link">
-                {% for tag in sidebar_tags %}
-                <a href="/tag/{{ tag }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+            <div class="header_links">
+                <div class="link">
+                    <a href="/">Home</a>
+                </div>
+                <div class="link">
+                    <a href="/articles">Articles</a>
+                </div>
+                {% if page_list %}
+                {% for page in page_list %}
+                <div class="link">
+                    <a href="/page/{{ page.title_path }}">{{ page.title }}</a>
+                </div>
                 {% endfor %}
+                {% endif %}
             </div>
-            <div class="clear"></div>
-            {% endif %}
+        </div>
+        <div class="main_content">
+            {% block body %}
 
-            {% block footer %}
-            <div class="footer">
-                {{ footer_text }}
-            </div>
             {% endblock %}
         </div>
+        {% block footer %}
+        <div class="clear"></div>
+        <div class="footer">
+            {{ footer_text }}
+        </div>
         {% endblock %}
+        <div class="clear"></div>
     </div>
-    <div class="clear"></div>
 
     <!-- Load scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>

@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="main_body">
-        <h3>Page List</h3>
+        <h1>Page List</h1>
         <p>
             Pages are the stalwarts of your arsenal. Steady and stoic, they
             will stand the test of time. We would expect for you to create
@@ -44,7 +44,7 @@
         {% endif %}
         </div>
 
-        <h3>Article List</h3>
+        <h1>Article List</h1>
         {% if released or unreleased %}
         <p>
             Articles are the recurring content of your site. In general, we would
@@ -56,7 +56,7 @@
         {% for item in ({'Unreleased': unreleased}, {'Released': released}) %}
         {% for name, articles in item.items() %}
             {% if articles %}
-            <h4>{{ name }} Articles</h4>
+            <h3>{{ name }} Articles</h3>
             <ul>
             {% for article in articles %}
                 <li>

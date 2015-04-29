@@ -7,38 +7,48 @@
         {% if articles %}
             {% for article in articles %}
             <div class="article_header">
-                <h2>
+                <h1 id="{{ sel(article.title_path, article.id) }}">
                     {% if article.title_alt %}
                     <span title="{{ article.title_alt }}">
                     {% else %}
                     <span>
                     {% endif %}
                         {% if article.title_link %}
-                        <a href="{{ article.title_link }}">{{ article.title }}</a>
+                        <a class="article_header_link" href="{{ article.title_link }}" target="_blank">{{ article.title }}</a>
                         {% else %}
                         {{ article.title }}
                         {% endif %}
                     </span>
-                    <div class="article_date">
-                        <a href="/post/{{ sel(article.title_path, article.id) }}">
-                            {{ article.date }}
-                        </a>
-                    </div>
-                </h2>
+                    {% if admin %}
+                    <span class="admin_edit_article_link">
+                        (<a href="/admin/article/edit/{{ article.id }}">edit?</a>)
+                    </span>
+                    {% endif %}
+                </h1>
+                <div class="article_date">
+                    <a href="/post/{{ sel(article.title_path, article.id) }}"
+                       title="Permanent link to this article">
+                        {{ article.date }}
+                        <span class="article_permalink">&sect;</span>
+                    </a>
+                </div>
             </div>
             <div class="clear"></div>
+            <div class="article_body">
             {{ article.body|safe }}
+            </div>
             {% if show_tags %}
-                <div class="clear"></div>
-                <div>tags:
-                    {% if article.tag_list %}
-                        {% for tag in article.tag_list %}
-                        <a href="/tag/{{ tag }}">{{ tag }}{% if not loop.last %}, {% endif %}</a>
-                        {% endfor %}
-                    {% else %}
-                        <em>None</em>
-                    {% endif %}
-                </div>
+            <div class="clear"></div>
+            <div class="tag_list">
+                <span class="tag_title">tags:</span>
+                {% if article.tag_list %}
+                    {% for tag in article.tag_list %}
+                    <a href="/tag/{{ tag }}" class="tag_link">{{ tag }}{% if not loop.last %}, {% endif %}</a>
+                    {% endfor %}
+                {% else %}
+                    <em>None</em>
+                {% endif %}
+            </div>
             {% endif %}
             {% endfor %}
         {% else %}

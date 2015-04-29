@@ -9,7 +9,6 @@ author: Christopher Rink
  */
 a {
 	text-decoration: none;
-	color: inherit;
     color: #B28C73;
 }
 
@@ -21,7 +20,7 @@ body {
     background-color: #E3FFFF;
 	color: #000000;
     font-family: "Raleway", sans-serif;
-    font-size: 10pt;
+    font-size: 21px;
 }
 
 p {
@@ -36,20 +35,41 @@ p {
     white-space: nowrap;
 }
 
+h1 {
+    font-size: 137%;
+}
+
+h2 {
+    font-size: 125%;
+}
+
+h3 {
+    font-size: 112%;
+}
+
+h4 {
+    font-size: 100%;
+}
+
 hr {
     border-style: solid;
+}
+
+/*
+ * Container CSS
+ */
+div.body {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /*
  * Top Bar CSS
  */
 div.top_bar {
-    background-color: #B28C73;
     height: 100px;
     width: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
 }
 
 div.top_bar_image {
@@ -66,27 +86,24 @@ div.top_bar_image img {
 }
 
 div.header {
-    position: absolute;
     left: 100px;
+}
+
+div.admin_links {
+    font-size: 62%;
+    width: 100px;
+    float: right;
 }
 
 span.title {
 	font-weight: bold;
-	font-size: 36pt;
+	font-size: 220%;
 }
 
 span.subtitle {
 	font-weight: normal;
-	font-size: 16pt;
-	color: #E3FFFF;
+	font-size: 100%;
 	text-align: right;
-}
-
-div.header_links {
-    position: absolute;
-    bottom: 0;
-    left: 100px;
-    width: 100%;
 }
 
 div.link {
@@ -96,49 +113,43 @@ div.link {
     padding-left: 5px;
 }
 
-div.link:hover {
-    background-color: #E3FFFF;
-}
-
 div.link a {
-    color: #E3FFFF;
-    font-size: 16pt;
+    color: #B28C73;
+    font-size: 100%;
 }
 
 div.link a:hover {
-    color: #B28C73;
+    color: gray;
 }
 
 /*
  * Main Body and Content CSS
  */
 div.main_content {
-    position: absolute;
-    top: 100px;
-    left: 0;
-    right: 0;
     width: 100%;
 }
 
 div.main_body {
-	width: 73%;
-    margin-left: 10px;
-	margin-right: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
 	float: left;
 }
 
+table.codehilitetable {
+    font-size: 75%;
+}
+
 div.pages {
-    float: left;
-    width: 73%;
     text-align: center;
 }
 
 div.pages span.label {
-    font-size: 8pt;
+    font-size: 50%;
 }
 
 div.pages a.page_link {
-    font-size: 10pt;
+    font-size: 62%;
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -156,7 +167,7 @@ div.sidebar {
 }
 
 div.sidebar_about {
-    font-size: 10pt;
+    font-size: 62%;
     text-align: justify;
 }
 
@@ -165,7 +176,7 @@ div.sidebar_link {
 }
 
 div.footer {
-	font-size: 8pt;
+	font-size: 50%;
 	width: 100%;
 	text-align: center;
 	color: #B28C73;
@@ -181,13 +192,24 @@ div.footer {
 /*
  * Article content CSS
  */
-div.article_header {
-	width: 100%;
+div.article_header h1 {
+    margin-bottom: 0;
 }
 
-div.article_header h2 {
-	float: left;
-	width: 100%;
+a.article_header_link:hover {
+	color: gray;
+}
+
+span.admin_edit_article_link {
+    font-size: 60%;
+}
+
+div.article_header span.admin_edit_article_link a {
+    color: #B28C73;
+}
+
+div.article_header span.admin_edit_article_link a:hover {
+    color: gray;
 }
 
 div.article_header a {
@@ -195,20 +217,24 @@ div.article_header a {
 }
 
 div.article_date {
-	float: right;
-	text-align: right;
 	color: #B28C73;
+    font-size: 75%;
 }
 
-div.vita_image {
-	float: left;
-	width: 25%;
-	padding-right: 10px;
-    border-radius: 2px;
+span.article_permalink {
+    display: none;
+    font-size: 50%;
+    color: black;
 }
 
-div.vita_image img {
-	max-width: 100%;
-	max-height: 100%;
-    border-radius: 2px;
+div.article_body p {
+    line-height: 150%;
+}
+
+span.tag_title {
+    font-size: 90%; /* 90% of div.tag_list */
+}
+
+div.tag_list {
+    font-size: 75%;
 }
