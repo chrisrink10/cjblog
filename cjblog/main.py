@@ -79,12 +79,13 @@ def home(page_num):
     articles = database.get_articles(start=start,
                                      with_body=True,
                                      with_links=True,
-                                     released=True)
+                                     released=True,
+                                     tag_list=True)
     return render_template("article.html",
                            page_title="Home",
                            articles=articles,
                            pages=pages,
-                           show_tags=False)
+                           show_tags=True)
 
 
 @app.route('/page/<int:page_id>', defaults={'page_title': None})
@@ -135,12 +136,13 @@ def articles_by_tag(tag_name, page_num):
                                      with_body=True,
                                      with_links=True,
                                      released=True,
-                                     tag=tag_name)
+                                     tag=tag_name,
+                                     tag_list=True)
     return render_template("article.html",
                            page_title="Tag: {}".format(tag_name),
                            articles=articles,
                            pages=pages,
-                           show_tags=False)
+                           show_tags=True)
 
 
 @app.route('/articles')
@@ -149,8 +151,10 @@ def article_list():
     articles = database.get_articles(with_links=False,
                                      with_body=False,
                                      released=True)
+    tags = database.get_all_tags(released=True)
     return render_template("list.html",
-                           articles=articles)
+                           articles=articles,
+                           tags=tags)
 
 
 @app.route('/login',
@@ -175,8 +179,8 @@ def log_me_in():
         database.create_session(session['username'], session['key'])
         return redirect(url_for('admin.home'))
     else:
-        return render_template("login.html",
-                           error="Please enter a valid username and password.")
+        error = "Please enter a valid username and password."
+        return render_template("login.html", error=error)
 
 
 @app.route('/logout')
@@ -255,11 +259,8 @@ def jinja_context():
         header_subtitle=Markup.escape(config.SUBTITLE),
         browser_title=Markup.escape(config.BROWSER_TITLE),
         footer_text=Markup(config.FOOTER_TEXT),
-        sidebar_tags=database.get_all_tags(released=True),
         sidebar_image=Markup.escape(config.IMAGE_LOCATION),
-        sidebar_image_alt=Markup.escape(config.IMAGE_ALT),
-        sidebar_blurb=Markup(util.mkdown(config.ABOUT_BLURB)),
-        sidebar_links=database.get_sidebar_links()
+        sidebar_image_alt=Markup.escape(config.IMAGE_ALT)
     )
 
 

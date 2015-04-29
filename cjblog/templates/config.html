@@ -8,7 +8,7 @@
             <p class="error">{{ error }}</p>
         {% endif %}
         <form action="/admin/config" method="post">
-            <h3>Personalize this Blog</h3>
+            <h1>Personalize this Blog</h1>
             <p>
                 Use the settings below to personalize the title, subtitle, and
                 other personal bits that appear around this blog.
@@ -47,14 +47,6 @@
             </div>
             <div>
                 <label>
-                    <span class="input_title" title="The sidebar blurb is the text which appears beneath the picture in the sidebar. This field allows Markdown.">
-                        Sidebar Blurb
-                    </span>
-                    <textarea name="about_blurb" placeholder="Sidebar About Me Blurb" class="small_textarea_input">{{ sidebar_blurb_markdown }}</textarea>
-                </label>
-            </div>
-            <div>
-                <label>
                     <span class="input_title" title="The image location is the location of the image on the server from the application root: {{ request.url_root }}. For example '/img/test.png' for an image at 'http://example.com/img/test.png'.">
                         Image Location
                     </span>
@@ -84,10 +76,10 @@
                 </label>
             </div>
 
-            <h3>Session Settings</h3>
+            <h1>Session Settings</h1>
             <p>
                 The settings below control session expiration and pruning. It is
-                extremely unlike that you should need to change any of these
+                extremely unlikely that you should need to change any of these
                 settings.
             </p>
             <div>

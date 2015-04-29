@@ -14,13 +14,12 @@ _cfg_loc = os.path.join(_current_dir, 'config.py')
 
 # These are some basic defaults, just in case we fail to get any value
 defaults = {
-    'main_title': 'my new blog',
-    'subtitle': 'has a subtitle',
-    'browser_title': 'My New Blog',
-    'footer_text': '&copy; My New Blog',
+    'main_title': '',
+    'subtitle': '',
+    'browser_title': '',
+    'footer_text': '',
     'image_location': '#',
-    'image_alt': 'My New Blog image',
-    'about_blurb': 'Check out my cool new blog!',
+    'image_alt': '',
     'page_size': 5,
     'session_expire': 1800,
     'session_prune_age': 3600
@@ -42,7 +41,6 @@ def compile_configuration(data):
         'footer_text': data['footer_text'] or defaults['footer_text'],
         'image_location': data['image_location'] or defaults['image_location'],
         'image_alt': data['image_alt'] or defaults['image_alt'],
-        'about_blurb': data['about_blurb'] or defaults['about_blurb'],
         'page_size': data['page_size'] or defaults['page_size'],
         'session_expire': data['session_expire'] or defaults['session_expire'],
         'session_prune_age': data['session_prune_age'] or defaults['session_prune_age'],
@@ -70,7 +68,6 @@ def compile_configuration(data):
         'FOOTER_TEXT = "{footer_text:s}"\n'
         'IMAGE_LOCATION = "{image_location:s}"\n'
         'IMAGE_ALT = "{image_alt:s}"\n'
-        'ABOUT_BLURB = """{about_blurb:s}"""\n'
         '\n'
         '# Page Size\n'
         'PAGE_SIZE = {page_size:d}\n'
