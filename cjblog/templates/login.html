@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block name %}Login{% endblock %}
+{% block name %}Log In{% endblock %}
 
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="../static/css/admin.css">
@@ -9,11 +9,11 @@
 {% block body %}
     <div class="main_body">
         <div class="login_form">
-            <h3>Administer this blog</h3>
+            <h1>Administer this blog</h1>
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% else %}
-                <p>Login with your username and password to administer this blog.</p>
+                <p>Log in with your username and password to administer this blog.</p>
             {% endif %}
             <form action="/login" method="post">
                 <div>
