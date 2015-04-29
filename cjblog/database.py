@@ -344,7 +344,7 @@ def get_articles(start=None, page_size=config.PAGE_SIZE, with_body=True,
     if with_links:
         cols.append(articles.c.title_link)
         cols.append(articles.c.title_alt)
-    if tag_list and not by_tag:
+    if tag_list:
         cols.append(
             func.ifnull(
                 func.group_concat(tags.c.tag, ", "),
@@ -371,12 +371,21 @@ def get_articles(start=None, page_size=config.PAGE_SIZE, with_body=True,
                 tags,
                 tag_map.c.tag_id == tags.c.id
             )
-        )
+        ).group_by(articles.c.id)
 
-    # Limit by tag only if we are returning all articles with a certain tag
-    if by_tag and not tag_list:
+    # Limit articles by tag
+    if by_tag:
         stmt = stmt.where(
-            tags.c.tag == tag
+            articles.c.id.in_(
+                select([tag_map.c.article_id]).select_from(
+                    tag_map.outerjoin(
+                        tags,
+                        tag_map.c.tag_id == tags.c.id
+                    )
+                ).where(
+                    tags.c.tag == tag
+                )
+            )
         )
 
     # Execute the statement
