@@ -1,7 +1,8 @@
 /**
  * cjblog :: edit.js
  *
- * Provides a few small client-side dynamic functions for the edit form.
+ * Provides a few small client-side dynamic functions for the administration
+ * pages.
  *
  * Author: Christopher Rink (chrisrink10 at gmail dot com)
  */
