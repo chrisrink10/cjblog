@@ -148,7 +148,8 @@ def check_login(username, password):
     row = result.fetchone()
 
     if row is not None:
-        if bcrypt.hashpw(password, row[0]) == row[0]:
+        if bcrypt.hashpw(bytes(password, encoding='utf8'),
+                         bytes(row[0], encoding='utf8')) == row[0]:
             result = True
 
     return result
