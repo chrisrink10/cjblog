@@ -3,14 +3,12 @@
 Contains utility functions.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
-import configparser
 import markdown
 import os
 
 # Make sure we handle the variable path (especially with venvs)
-_current_dir = os.path.dirname(os.path.realpath(__file__))
-_ini_loc = os.path.join(_current_dir, 'config.ini')
-_cfg_loc = os.path.join(_current_dir, 'config.py')
+_cfg_loc = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                        'config.py')
 
 # These are some basic defaults, just in case we fail to get any value
 defaults = {
@@ -27,22 +25,28 @@ defaults = {
 
 
 def compile_configuration(data):
-    """Compile a configuration file from database"""
+    """
+    Compile a configuration file from database data.
+
+    Note that this function will attempt to import the existing
+    configuration file, so it is not suitable for compilation of a
+    brand-new `config.py` file.
+    """
     if not isinstance(data, (dict, type(None))):
         raise TypeError("Configuration information is required.")
 
-    ini = configparser.ConfigParser()
-    ini.read(_ini_loc)
+    # Import existing configuration for configuration which is static
+    import cjblog.config
 
     # Generate the compiled configuration dictionary
     compiled = {}
     for key in defaults.keys():
         compiled[key] = data[key] or defaults[key]
-    compiled['secret_key'] = ini['CONFIG'].get("SECRET_KEY", os.urandom(32))
+    compiled['secret_key'] = cjblog.config.SECRET_KEY
 
     # Create the text of the configuration file
-    cfg = generate_configuration(ini['CONFIG']['DATABASE'],
-                                 debug=ini.getboolean('CONFIG', 'DEBUG'),
+    cfg = generate_configuration(cjblog.config.DATABASE,
+                                 debug=cjblog.config.DEBUG,
                                  data=compiled)
 
     # Once we verified compilation is valid, save the file
@@ -67,11 +71,14 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
     if data is None:
         data = defaults
         if key is None:
-            data['secret_key'] = os.urandom(32)
+            data['secret_key'] = generate_secret_key()
 
     # Specify the custom key version
     if key is not None or 'secret_key' not in data:
         data["secret_key"] = key
+
+    # Convert the secret key to a string
+    data["secret_key"] = repr(data["secret_key"])
 
     # Generate the configuration string
     cfg = str(
@@ -85,7 +92,6 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
         '# This file exists to reduce database reads for commonly\n'
         '# accessed configuration information.\n'
         '################################################################\n'
-        '# Configuration read from config.ini\n'
         'DEBUG = {debug}\n'
         'DATABASE = "{database}"\n'
         '\n'
@@ -105,7 +111,7 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
         'SESSION_PRUNE_AGE = {session_prune_age:d}\n'
         '\n'
         "# App Secret key encrypts the user's session data\n"
-        "SECRET_KEY = b'{secret_key:s}'\n"
+        "SECRET_KEY = {secret_key:s}\n"
     ).format(database=dbloc,
              debug=debug,
              **data)
@@ -118,6 +124,11 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
         raise CompileError("Invalid Python code generated.")
 
     return cfg
+
+
+def generate_secret_key():
+    """Generate a new secret key."""
+    return os.urandom(32)
 
 
 def mkdown(text):
