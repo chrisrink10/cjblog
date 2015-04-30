@@ -3,9 +3,9 @@
 Renders most of the pages of cjrink.com/admin.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
-from datetime import datetime
-from functools import update_wrapper
-from importlib import reload
+import datetime
+import functools
+import importlib
 
 from flask import (Blueprint,
                    current_app,
@@ -26,7 +26,7 @@ admin = Blueprint("admin", __name__, url_prefix='/admin')
 def login_required(func):
     """Checks whether the user has a valid session."""
     def decorator(*args, **kwargs):
-        if not 'username' in session or not 'key' in session:
+        if 'username' not in session or 'key' not in session:
             current_app.logger.debug("Could not find 'username' or 'key'.")
             session.clear()
             abort(403)
@@ -46,7 +46,7 @@ def login_required(func):
             return redirect(url_for("login", expired=True))
         return func(*args, **kwargs)
 
-    return update_wrapper(decorator, func)
+    return functools.update_wrapper(decorator, func)
 
 
 @admin.route('/')
@@ -70,7 +70,6 @@ def home():
 def edit_config():
     return render_template("config.html",
                            admin=True,
-                           sidebar_blurb_markdown=config.ABOUT_BLURB,
                            page_size=config.PAGE_SIZE,
                            session_expire=config.SESSION_EXPIRE,
                            session_prune_age=config.SESSION_PRUNE_AGE,
@@ -90,11 +89,12 @@ def save_config():
         data['footer_text'] = request.form['footer_text']
         data['image_location'] = request.form['image_location']
         data['image_alt'] = request.form['image_alt']
-        data['about_blurb'] = request.form['about_blurb']
         data['page_size'] = int(request.form['page_size'])
         data['session_expire'] = int(request.form['session_expire'])
         data['session_prune_age'] = int(request.form['session_prune_age'])
-        if data['session_expire'] < 1 or data['session_prune_age'] < 1 or data['page_size'] < 1:
+        if (data['session_expire'] < 1 or
+                data['session_prune_age'] < 1 or
+                data['page_size'] < 1):
             raise ValueError
 
         database.save_config(data)
@@ -109,12 +109,11 @@ def save_config():
                     " selected. Please try again.")
     else:
         # If no exception occurred, reload the configuration file
-        reload(config)
+        importlib.reload(config)
 
     return render_template("config.html",
                            admin=True,
                            error=error,
-                           sidebar_blurb_markdown=config.ABOUT_BLURB,
                            page_size=config.PAGE_SIZE,
                            session_expire=config.SESSION_EXPIRE,
                            session_prune_age=config.SESSION_PRUNE_AGE,
@@ -254,4 +253,4 @@ def to_markdown():
 @admin.route('/now')
 def current_date():
     """Returns a properly formatted date for now."""
-    return database.date_to_str(datetime.today().timestamp())
+    return database.date_to_str(datetime.datetime.today().timestamp())
