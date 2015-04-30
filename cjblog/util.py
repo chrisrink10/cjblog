@@ -34,18 +34,46 @@ def compile_configuration(data):
     ini = configparser.ConfigParser()
     ini.read(_ini_loc)
 
-    compiled = {
-        'main_title': data['main_title'] or defaults['main_title'],
-        'subtitle': data['subtitle'] or defaults['subtitle'],
-        'browser_title': data['browser_title'] or defaults['browser_title'],
-        'footer_text': data['footer_text'] or defaults['footer_text'],
-        'image_location': data['image_location'] or defaults['image_location'],
-        'image_alt': data['image_alt'] or defaults['image_alt'],
-        'page_size': data['page_size'] or defaults['page_size'],
-        'session_expire': data['session_expire'] or defaults['session_expire'],
-        'session_prune_age': data['session_prune_age'] or defaults['session_prune_age'],
-        'secret_key': ini['CONFIG'].get("SECRET_KEY", os.urandom(32))
-    }
+    # Generate the compiled configuration dictionary
+    compiled = {}
+    for key in defaults.keys():
+        compiled[key] = data[key] or defaults[key]
+    compiled['secret_key'] = ini['CONFIG'].get("SECRET_KEY", os.urandom(32))
+
+    # Create the text of the configuration file
+    cfg = generate_configuration(ini['CONFIG']['DATABASE'],
+                                 debug=ini.getboolean('CONFIG', 'DEBUG'),
+                                 data=compiled)
+
+    # Once we verified compilation is valid, save the file
+    with open(_cfg_loc, 'w') as f:
+        f.write(cfg)
+
+    return
+
+
+def generate_configuration(dbloc, debug=False, data=None, key=None):
+    """
+    Generate the text of the `config.py` file.
+
+    Callers must specify the location of the database, `dbloc`.
+
+    Optionally, specify that this instance of the blog will be run in
+    `debug` mode. If no `data` dictionary is provided, the defaults
+    will be selected. If the caller specifies a `key`, then that
+    value will be used
+    """
+    # Specify default data (and key if not given)
+    if data is None:
+        data = defaults
+        if key is None:
+            data['secret_key'] = os.urandom(32)
+
+    # Specify the custom key version
+    if key is not None or 'secret_key' not in data:
+        data["secret_key"] = key
+
+    # Generate the configuration string
     cfg = str(
         '################################################################\n'
         '# Blog Configuration File\n'
@@ -78,9 +106,9 @@ def compile_configuration(data):
         '\n'
         "# App Secret key encrypts the user's session data\n"
         "SECRET_KEY = b'{secret_key:s}'\n"
-    ).format(database=ini['CONFIG']['DATABASE'],
-             debug=ini.getboolean('CONFIG', 'DEBUG'),
-             **compiled)
+    ).format(database=dbloc,
+             debug=debug,
+             **data)
 
     # Try to verify that we can compile this configuration before saving
     # and potentially crashing the application
@@ -89,11 +117,7 @@ def compile_configuration(data):
     except (SyntaxError, TypeError):
         raise CompileError("Invalid Python code generated.")
 
-    # Once we verified compilation is valid, save the file
-    with open(_cfg_loc, 'w') as f:
-        f.write(cfg)
-
-    return
+    return cfg
 
 
 def mkdown(text):
