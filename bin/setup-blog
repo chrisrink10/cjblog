@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+"""cjblog :: setup-blog
+
+Setup scripts to generate the database file and users.
+
+Author: Christopher Rink (chrisrink10 at gmail dot com)"""
+import argparse
+import getpass
+import os
+import os.path
+import shutil
+import site
+import sqlite3
+
+import bcrypt
+
+import cjblog.util
+
+
+def create_database(installdir, name):
+    """
+    Create the SQLite database with `name` in `installdir`.
+    """
+    # Make sure we get a strings
+    if not isinstance(installdir, str):
+        raise TypeError("Install directory name must be a string.")
+    if not isinstance(name, str):
+        raise TypeError("Database file name must be a string.")
+
+    # Get the package install directory and, consequently, SQL script location
+    packagedir = site.getsitepackages()[0]
+    scriptloc = os.path.join(packagedir, "cjblog",
+                             "scripts", "make_database.sql")
+    if not os.path.exists(scriptloc):
+        raise FileNotFoundError("Could not locate SQL script in {loc}".format(
+            loc=scriptloc
+        ))
+
+    # Generate the database install location
+    dbloc = _db_location(installdir, name, with_protocol=False)
+    if os.path.exists(name):
+        raise ValueError("File '{file}' already exists.".format(file=name))
+
+    # Read in the entire SQL script
+    print("Reading SQL script from '{loc}'... ".format(loc=scriptloc), end='')
+    with open(scriptloc, mode='r', encoding='utf8') as f:
+        sql = f.read()
+    print("Success!")
+
+    # Try to generate the script
+    print("Generating the SQLite database '{loc}'... ".format(loc=dbloc),
+          end='')
+    conn = sqlite3.connect(dbloc)
+    conn.executescript(sql)
+    conn.commit()
+    conn.close()
+    print("Success!")
+
+
+def create_user(installdir, name, username):
+    """
+    Create a new user in the SQLite database `name` located in `installdir`.
+    """
+    sql = """INSERT INTO users (username, password) VALUES (?, ?)"""
+    dbloc = _db_location(installdir, name, with_protocol=False)
+
+    # Solicit username (maybe) or password from user
+    print("Creating a new user for blog access...")
+    while username is None or len(username) < 1:
+        username = input("Username: ")
+    password = ''
+    while len(password) < 1:
+        password = getpass.getpass()
+
+    # Hash the password
+    hashed = bcrypt.hashpw(bytes(password, encoding='utf8'), bcrypt.gensalt())
+
+    # Insert the new user into the database
+    print("Inserting user '{user}'... ".format(user=username), end='')
+    conn = sqlite3.connect(dbloc)
+    conn.execute(sql, (username, hashed))
+    conn.commit()
+    conn.close()
+    print("Success!")
+
+
+def generate_config(installdir, name, debug, overwrite):
+    """
+    Generate the `config.py` file for the blog.
+
+    The caller should specify the install location - `installdir` and
+    database name - `name` so the file can be generated correctly. Callers
+    must also specify whether the instance will be in `debug` mode and
+    whether or not to `overwrite` any existing configuration.
+    """
+    # Determine the script location and verify the file does not already exist
+    packagedir = site.getsitepackages()[0]
+    cfgloc = os.path.join(packagedir, "cjblog", "config.py")
+    if os.path.exists(cfgloc) and not overwrite:
+        raise FileExistsError("File '{loc}' already exists.".format(loc=cfgloc))
+
+    # Generate the database location
+    dbloc = _db_location(installdir, name, with_protocol=True)
+
+    # Generate the configuration file text
+    print("Generating database configuration... ", end='')
+    cfg = cjblog.util.generate_configuration(dbloc, debug=bool(debug))
+    print("Success!")
+
+    # Write the file out
+    print("Writing configuration file '{loc}'... ".format(loc=cfgloc), end='')
+    with open(cfgloc, mode='w+', encoding='utf8') as f:
+        f.write(cfg)
+    print("Success!")
+
+
+def install_static(installdir):
+    """
+    Install static and template files from the package directory to the
+    specified `installdir`.
+    """
+    # Get directories
+    packagedir = site.getsitepackages()[0]
+    static = os.path.join(packagedir, "cjblog", "static")
+    templates = os.path.join(packagedir, "cjblog", "templates")
+
+    # Copy the files over
+    print("Installing static files and templates... ", end='')
+    shutil.copytree(static, os.path.join(installdir, "static"))
+    shutil.copytree(templates, os.path.join(installdir, "templates"))
+    print("Success!")
+
+    # Create a static images directory if it does not already exist
+    try:
+        os.mkdir(os.path.join(installdir, "static", "img"))
+    except OSError:
+        pass
+
+    # Create the "main" file
+    print("Creating application... ", end='')
+    mainfile = os.path.join(installdir, "main.py")
+    with open(mainfile, mode='w+', encoding='utf8') as f:
+        f.write(
+            "##################################\n"
+            "# AUTO GENERATED APPLICATION FILE\n"
+            "# Do not modify this file.\n"
+            "##################################\n"
+            "from cjblog import app\n"
+        )
+
+    print("Success!")
+
+
+def _db_location(installdir, name, with_protocol=True):
+    """
+    Return an absolute filesystem location of a database at the given
+    `installdir` called `name`. Optionally, the protocol can be included
+    at the begining.
+    """
+    return "{protocol}{path}".format(
+        protocol='sqlite:///' if with_protocol else '',
+        path=os.path.join(installdir, name)
+    )
+
+
+def main():
+    """
+    Main command-line entry point for CJBlog.
+    """
+    parser = argparse.ArgumentParser(
+        description="Simple personal blog with dynamic pages."
+    )
+    parser.add_argument("-d", "--directory",
+                        dest="directory",
+                        help="Database install directory",
+                        required=False,
+                        default=os.getcwd()
+                        )
+    parser.add_argument("-n", "--database-name",
+                        dest="database_name",
+                        help="Name of SQLite database file",
+                        required=False,
+                        default="blog.db"
+                        )
+    parser.add_argument("-c", "--create-database",
+                        dest='create_database',
+                        help="Create SQLite database file",
+                        required=False,
+                        action="store_true"
+                        )
+    parser.add_argument("-u", "--create-user",
+                        dest="user",
+                        help="New username to create in file",
+                        required=False,
+                        default=None
+                        )
+    parser.add_argument("-g", "--gen-config",
+                        dest="gen_config",
+                        help="Generate the configuration file.",
+                        required=False,
+                        default=False,
+                        action="store_true"
+                        )
+    parser.add_argument("-o", "--overwrite",
+                        dest="overwrite",
+                        help="Overwrite config.py if it exists",
+                        required=False,
+                        default=False,
+                        action="store_true"
+                        )
+    parser.add_argument("-b", "--debug",
+                        dest="debug",
+                        help="Enable debug mode. Only used in conjunction "
+                             "with gen_config.",
+                        required=False,
+                        default=False,
+                        action="store_true")
+    parser.add_argument("-i", "--install",
+                        dest="install",
+                        help="Install static and template files to the "
+                             "application root",
+                        required=False,
+                        default=False,
+                        action="store_true"
+                        )
+
+    args = parser.parse_args()
+
+    try:
+        # Create the SQLite database
+        if args.create_database:
+            create_database(args.directory, args.database_name)
+
+        # Create a new user
+        if args.user is not None:
+            create_user(args.directory, args.database_name, args.user)
+
+        # Generate the Python configuration file
+        if args.gen_config:
+            generate_config(args.directory, args.database_name,
+                            args.debug, args.overwrite)
+
+        # Install the application support files
+        if args.install:
+            install_static(args.directory)
+    except (TypeError, ValueError, FileExistsError, FileNotFoundError) as e:
+        print("\nError: {}".format(e))
+
+
+if __name__ == "__main__":
+    main()
