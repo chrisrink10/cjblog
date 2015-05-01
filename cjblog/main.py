@@ -15,14 +15,15 @@ from flask import (Flask,
                    abort,
                    Markup)
 
-from cjblog import admin
+from cjblog.admin import admin
 import cjblog.config as config
 import cjblog.database as database
-import cjblog.util as util
 
 
 # Set up Flask
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder=os.path.join(config.APP_ROOT, 'static'),
+            template_folder=os.path.join(config.APP_ROOT, 'templates'))
 
 # For debugging, we'll leave these on
 if config.DEBUG:

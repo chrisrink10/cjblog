@@ -46,6 +46,7 @@ def compile_configuration(data):
 
     # Create the text of the configuration file
     cfg = generate_configuration(cjblog.config.DATABASE,
+                                 cjblog.config.APP_ROOT,
                                  debug=cjblog.config.DEBUG,
                                  data=compiled)
 
@@ -56,7 +57,7 @@ def compile_configuration(data):
     return
 
 
-def generate_configuration(dbloc, debug=False, data=None, key=None):
+def generate_configuration(dbloc, app_root, debug=False, data=None, key=None):
     """
     Generate the text of the `config.py` file.
 
@@ -94,6 +95,7 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
         '################################################################\n'
         'DEBUG = {debug}\n'
         'DATABASE = "{database}"\n'
+        'APP_ROOT = "{app_root}"\n'
         '\n'
         '# Page configuration\n'
         'MAIN_TITLE = "{main_title:s}"\n'
@@ -114,6 +116,7 @@ def generate_configuration(dbloc, debug=False, data=None, key=None):
         "SECRET_KEY = {secret_key:s}\n"
     ).format(database=dbloc,
              debug=debug,
+             app_root=app_root,
              **data)
 
     # Try to verify that we can compile this configuration before saving

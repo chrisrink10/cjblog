@@ -104,7 +104,8 @@ def generate_config(installdir, name, debug, overwrite):
 
     # Generate the configuration file text
     print("Generating database configuration... ", end='')
-    cfg = cjblog.util.generate_configuration(dbloc, debug=bool(debug))
+    cfg = cjblog.util.generate_configuration(dbloc, installdir,
+                                             debug=bool(debug))
     print("Success!")
 
     # Write the file out
@@ -145,7 +146,7 @@ def install_static(installdir):
             "# AUTO GENERATED APPLICATION FILE\n"
             "# Do not modify this file.\n"
             "##################################\n"
-            "from cjblog import app\n"
+            "from cjblog.main import app\n"
         )
 
     print("Success!")
@@ -227,22 +228,24 @@ def main():
     args = parser.parse_args()
 
     try:
+        installdir = os.path.abspath(args.directory)
+
         # Create the SQLite database
         if args.create_database:
-            create_database(args.directory, args.database_name)
+            create_database(installdir, args.database_name)
 
         # Create a new user
         if args.user is not None:
-            create_user(args.directory, args.database_name, args.user)
+            create_user(installdir, args.database_name, args.user)
 
         # Generate the Python configuration file
         if args.gen_config:
-            generate_config(args.directory, args.database_name,
+            generate_config(installdir, args.database_name,
                             args.debug, args.overwrite)
 
         # Install the application support files
         if args.install:
-            install_static(args.directory)
+            install_static(installdir)
     except (TypeError, ValueError, FileExistsError, FileNotFoundError) as e:
         print("\nError: {}".format(e))
 
