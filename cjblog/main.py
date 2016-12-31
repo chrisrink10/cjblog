@@ -1,6 +1,6 @@
 """cjblog :: main module
 
-Renders most of the pages of cjrink.com.
+Renders most of the pages of the site.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
 import logging
@@ -22,8 +22,8 @@ import cjblog.database as database
 
 # Set up Flask
 app = Flask(__name__,
-            static_folder=os.path.join(config.APP_ROOT, 'static'),
-            template_folder=os.path.join(config.APP_ROOT, 'templates'))
+            static_folder='/app/cjblog/static',
+            template_folder='/app/cjblog/templates')
 
 # For debugging, we'll leave these on
 if config.DEBUG:

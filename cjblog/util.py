@@ -7,8 +7,7 @@ import markdown
 import os
 
 # Make sure we handle the variable path (especially with venvs)
-_cfg_loc = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        'config.py')
+_cfg_loc = '/app/config.py'
 
 # These are some basic defaults, just in case we fail to get any value
 defaults = {
@@ -45,9 +44,7 @@ def compile_configuration(data):
     compiled['secret_key'] = cjblog.config.SECRET_KEY
 
     # Create the text of the configuration file
-    cfg = generate_configuration(cjblog.config.DATABASE,
-                                 cjblog.config.APP_ROOT,
-                                 debug=cjblog.config.DEBUG,
+    cfg = generate_configuration(debug=cjblog.config.DEBUG,
                                  data=compiled)
 
     # Once we verified compilation is valid, save the file
@@ -57,11 +54,9 @@ def compile_configuration(data):
     return
 
 
-def generate_configuration(dbloc, app_root, debug=False, data=None, key=None):
+def generate_configuration(debug=False, data=None, key=None):
     """
     Generate the text of the `config.py` file.
-
-    Callers must specify the location of the database, `dbloc`.
 
     Optionally, specify that this instance of the blog will be run in
     `debug` mode. If no `data` dictionary is provided, the defaults
@@ -94,8 +89,6 @@ def generate_configuration(dbloc, app_root, debug=False, data=None, key=None):
         '# accessed configuration information.\n'
         '################################################################\n'
         'DEBUG = {debug}\n'
-        'DATABASE = "{database}"\n'
-        'APP_ROOT = "{app_root}"\n'
         '\n'
         '# Page configuration\n'
         'MAIN_TITLE = "{main_title:s}"\n'
@@ -114,9 +107,7 @@ def generate_configuration(dbloc, app_root, debug=False, data=None, key=None):
         '\n'
         "# App Secret key encrypts the user's session data\n"
         "SECRET_KEY = {secret_key:s}\n"
-    ).format(database=dbloc,
-             debug=debug,
-             app_root=app_root,
+    ).format(debug=debug,
              **data)
 
     # Try to verify that we can compile this configuration before saving

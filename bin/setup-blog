@@ -115,43 +115,6 @@ def generate_config(installdir, name, debug, overwrite):
     print("Success!")
 
 
-def install_static(installdir):
-    """
-    Install static and template files from the package directory to the
-    specified `installdir`.
-    """
-    # Get directories
-    packagedir = site.getsitepackages()[0]
-    static = os.path.join(packagedir, "cjblog", "static")
-    templates = os.path.join(packagedir, "cjblog", "templates")
-
-    # Copy the files over
-    print("Installing static files and templates... ", end='')
-    shutil.copytree(static, os.path.join(installdir, "static"))
-    shutil.copytree(templates, os.path.join(installdir, "templates"))
-    print("Success!")
-
-    # Create a static images directory if it does not already exist
-    try:
-        os.mkdir(os.path.join(installdir, "static", "img"))
-    except OSError:
-        pass
-
-    # Create the "main" file
-    print("Creating application... ", end='')
-    mainfile = os.path.join(installdir, "main.py")
-    with open(mainfile, mode='w+', encoding='utf8') as f:
-        f.write(
-            "##################################\n"
-            "# AUTO GENERATED APPLICATION FILE\n"
-            "# Do not modify this file.\n"
-            "##################################\n"
-            "from cjblog.main import app\n"
-        )
-
-    print("Success!")
-
-
 def _db_location(installdir, name, with_protocol=True):
     """
     Return an absolute filesystem location of a database at the given
@@ -181,7 +144,7 @@ def main():
                         dest="database_name",
                         help="Name of SQLite database file",
                         required=False,
-                        default="blog.db"
+                        default="database.db"
                         )
     parser.add_argument("-c", "--create-database",
                         dest='create_database',
@@ -216,14 +179,6 @@ def main():
                         required=False,
                         default=False,
                         action="store_true")
-    parser.add_argument("-i", "--install",
-                        dest="install",
-                        help="Install static and template files to the "
-                             "application root",
-                        required=False,
-                        default=False,
-                        action="store_true"
-                        )
 
     args = parser.parse_args()
 
@@ -242,10 +197,6 @@ def main():
         if args.gen_config:
             generate_config(installdir, args.database_name,
                             args.debug, args.overwrite)
-
-        # Install the application support files
-        if args.install:
-            install_static(installdir)
     except (TypeError, ValueError, FileExistsError, FileNotFoundError) as e:
         print("\nError: {}".format(e))
 

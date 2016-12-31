@@ -1,6 +1,6 @@
 """cjblog :: database module
 
-Performs all of the database manipulation for cjrink.com.
+Performs all of the database manipulation for the site.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
 from datetime import date
@@ -28,7 +28,7 @@ import cjblog.util as util
 
 
 # Configure SQLAlchemy
-engine = create_engine(config.DATABASE, echo=config.DEBUG)
+engine = create_engine('sqlite:////data/database.db', echo=config.DEBUG)
 metadata = MetaData()
 
 # Table configuration

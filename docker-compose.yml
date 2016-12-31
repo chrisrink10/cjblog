@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  cjblog-base:
+    build: .
+    volumes:
+      - ./config.py:/app/cjblog/config.py
+      - ./database.db:/data/database.db
+      - ./img/:/app/cjblog/static/img/
+      - ./cert.pem:/etc/nginx/ssl/cert.pem
+      - ./ssl.key:/etc/nginx/ssl/ssl.key
+      - ./dhparam.pem:/etc/nginx/ssl/dhparam.pem
+      - ./etc/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./etc/uwsgi/uwsgi.ini:/app/uwsgi.ini
+      - ./.well-known/:/app/.well-known/
+
+  cjblog:
+    extends: cjblog-base
+    ports:
+      - "80:80"
+      - "443:443"

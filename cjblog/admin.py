@@ -1,6 +1,6 @@
 """cjblog :: admin module
 
-Renders most of the pages of cjrink.com/admin.
+Renders most of the pages of the admin site.
 
 Author: Christopher Rink (chrisrink10 at gmail dot com)"""
 import datetime
